@@ -3,7 +3,7 @@
 # Utilidad para montar discos cuando el sistema operativo linux no los monta de forma automática, 
 # sin necesidad de usar comandos, esta utilidad monta los discos preguntando al usuario
 # por los mismos, al igual que sus particiones con su correspondiente FSTYPE. 
-#
+
 # Requiere tener instalado batcat, fdisk y fsck
 # Para cancelar el script Ctrl + C
 # Cambiar las variables según convengan
