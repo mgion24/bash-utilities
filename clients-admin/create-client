@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script que permite crear un cliente vpn básico en un servidor previamente creado
-# Está adapdato a mi entorno pero se pueden modificar números.
+# Está adaptado a mi entorno pero se pueden modificar números.
 
 if [ $# -eq 0 ] # Si no tiene parametros
   then
