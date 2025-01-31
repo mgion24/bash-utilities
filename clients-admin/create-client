@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# Script que permite crear un cliente vpn básico en un servidor previamente creado
+# Está adapdato a mi entorno pero se pueden modificar números.
+
+if [ $# -eq 0 ] # Si no tiene parametros
+  then
+    echo "[-] El script necesita de la IP del cliente y el nombre";
+    echo "[-] Ejemplo: create-client 10.0.1.10 linuxclient";
+    exit 1
+fi
+
+if echo $1 | { IFS=. read a b c d e;	# Si la IP es valida (pertenece al rango 10.0.1.0/24)
+    test "$a" -eq 10 2>/dev/null &&
+    test "$b" -eq 0 2>/dev/null&&
+    test "$c" -eq 1 2>/dev/null&&
+    test "$d" -ge 1 2>/dev/null && test "$d" -le 254 2>/dev/null && test "$d" -ne 200 2>/dev/null &&
+    test -z "$e" 2>/dev/null ; };
+then
+
+	if [ "$(grep -w "${2}" /etc/wireguard/wg0.conf | wc -l)" -ge 1 ];
+	then
+		echo "[-] Campo vacío o el cliente ${2} ya existe, no se hace nada"
+		exit 1
+	else
+
+		if [ "$(grep -w "${1}" /etc/wireguard/wg0.conf | wc -l)" -ge 1 ];
+		then
+			echo "[-] La IP ${1} ya existe como cliente, no se hace nada"
+			exit 1
+		fi
+
+	# Si la IP es valida el segundo parametro es el nombre del cliente
+
+	# SERVER VARIABLES
+
+	dest="/etc/wireguard" # Carpeta de conf del servidor
+	dest_server_keys="/etc/wireguard/server_keys" # Carpeta de claves del servidor
+	vpnif="wg0" # Wireguard interface name
+	wgconf="${dest}/${vpnif}.conf" # WG server config file
+	_vpn_server_dns="syncbetter.ddns.net" # DNS FQDN server
+	_vpn_server_udp_port='51820' # UDP Wireguard port
+	publkey="${dest_server_keys}/$HOSTNAME.${vpnif}.publickey" # Public server key
+
+	# CLIENTS VARIABLES
+
+	now=$(date +"%d-%m-%Y_%H_%M_%S") # get date and time stamp
+	_client_ip="${1}" # vpn client IP
+	_client_name="${2}" # vpn client name
+	_client_pri="${dest}/clients-config/${_client_name}/${_client_name}.privatekey" # client private key
+	_client_pub="${dest}/clients-config/${_client_name}/${_client_name}.publickey" # client public key
+	_client_psk="${dest}/clients-config/${_client_name}/${_client_name}.presharedkey" # client pre shared key
+	_client_conf="${dest}/clients-config/${_client_name}/${_client_name}.conf" # client config
+	_client_dns_ip="10.0.1.200" # DNS Server
+	_bak_conf="${dest}/clients-config/${_client_name}/${vpnif}.conf.$now" # backup main wired $wgconf file
+
+	mkdir -p "${dest}/clients-config/${_client_name}" # Crear directorio cliente
+
+	cp "$wgconf" "$_bak_conf" # Copia de seguridad del archivo $wgconf
+	umask 077; wg genkey | tee "$_client_pri" | wg pubkey > "$_client_pub" # Generacion claves pub y priv
+	umask 077; wg genpsk > "$_client_psk" # Generacion clave precompartida
+
+# Create client config file
+
+echo "[+] Creando cliente..."
+
+cat <<EOF_CLIENT  >"$_client_conf"
+# Config for $_client_name client #
+[Interface]
+PrivateKey = $(cat ${_client_pri})
+Address = ${_client_ip}/32
+DNS = ${_client_dns_ip}
+
+[Peer]
+# ${HOSTNAME}'s ${publkey}
+PublicKey = $(cat ${publkey})
+AllowedIPs = 0.0.0.0/0
+# VPN Server public DNS and port
+Endpoint = ${_vpn_server_dns}:${_vpn_server_udp_port}
+PersistentKeepalive = 15
+PresharedKey = $(cat ${_client_psk})
+EOF_CLIENT
+
+# Wireguard server client Peer
+
+cat <<EOF_WG_CONG >>"${wgconf}"
+# ${_client_name}
+[Peer]
+PublicKey = $(cat ${_client_pub})
+AllowedIPs = ${_client_ip}/32
+PresharedKey = $(cat ${_client_psk})
+
+EOF_WG_CONG
+
+sleep 1
+
+if grep -wA4 -q "${2}" "${wgconf}"; then
+   echo "[+] Cliente ${2} creado con éxito"
+   exit 0
+else
+  echo "[-] Error al crear el cliente ${2}"
+  exit 1
+fi
+
+fi
+
+else
+	# Mensaje de error
+	echo "[-] La IP tiene que estar en el rango 10.0.1.0/24 y distinta de 10.0.1.200/32";
+	exit 1
+fi

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Buscador de clientes disponibles en wg0.conf. Se pueden usar REGEX
+
+if [ $# -eq 0 ] # Si no tiene parametros
+  then
+    echo "[-] El script necesita de un cliente a buscar";
+    exit 1
+else
+
+sed -n '/# CLIENTS/,$p' /etc/wireguard/wg0.conf | grep -A4 -E "${1}" > clients;
+bat -l python clients;
+rm -rf clients;
+
+fi

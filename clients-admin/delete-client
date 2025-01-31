@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Script que permite el borrado de un cliente en la vpn en mi entorno. 
+# Simplemente elimina un número de líneas en wg0.conf
+
+if [ $# -eq 0 ] # Si no tiene parametros
+  then
+    echo "[-] El script necesita el nombre del cliente";
+    echo "[-] Ejemplo: delete-client linuxclient";
+    exit 1
+else
+
+    dest="/etc/wireguard" # Carpeta de conf del servidor
+    client="${dest}/clients-config/${1}"
+    vpnif="wg0" # Wireguard interface name
+    wgconf="${dest}/${vpnif}.conf" # WG server config file
+    _bak_conf="${dest}/${vpnif}.conf.old" # Backup location
+
+    if [ -d "$client" ]; then
+      echo "[+] Borrando el cliente..."
+      sleep 1
+      rm -rf "${client}"
+      cp "${wgconf}" "${_bak_conf}"
+
+      sed -i "/\b${1}\b/,+5d" "${wgconf}"
+
+      if [ "$(grep -w "${1}" ${wgconf} | wc -l)" -ge 0 ];
+      then
+         echo "[+] Cliente ${1} borrado con éxito"
+         exit 0
+      else
+         echo "[-] Error al borrar el cliente ${1}"
+         exit 1
+      fi
+    else
+      echo "[-] El cliente ${1} no existe, no se hace nada."
+      exit 1
+    fi
+fi
+

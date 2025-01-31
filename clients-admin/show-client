@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Muestra la configuración específica de un cliente pasado como parámetro
+
+if [ $# -eq 0 ] # Si no tiene parametros
+  then
+    echo "[-] El script necesita el nombre del cliente";
+    echo "[-] Ejemplo: show-client linuxclient";
+    exit 1
+else
+
+    dest="/etc/wireguard" # Carpeta de conf del servidor
+    client="${dest}/clients-config/${1}"
+
+    if [ -d "$client" ]; then
+	    bat -l python "$client/${1}.conf"
+    else
+      echo "[-] El cliente ${1} no existe, no se hace nada."
+      exit 1
+    fi
+fi

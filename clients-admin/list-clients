@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Simplemente muestra el directorio de los clientes
+
+tree -d -L 1 --noreport /etc/wireguard/clients-config/

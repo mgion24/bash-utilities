@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Crea un QR de un cliente que se especifique como parámetro
+
+qrencode -t ansiutf8 < /etc/wireguard/clients-config/$1/$1.conf
