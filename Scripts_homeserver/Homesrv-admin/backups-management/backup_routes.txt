@@ -1,0 +1,12 @@
+/etc/apache2
+/etc/php/8.1
+/var/www
+/mnt/raid
+/mnt/services
+/opt/bitwarden
+/home
+/root
+/etc/bind
+/etc/wireguard
+/etc/postfix
+/etc/redis
