@@ -7,14 +7,10 @@ Repositorio con scripts de Bash que utilizo en mi día a día para administrar s
 ### `mount_disk.sh`
 Script para montar discos en sistemas Linux de forma automática e intuitiva, sin necesidad de usar la terminal manualmente. Permite al usuario seleccionar opciones de montaje fácilmente.
 
----
-
 ## Scripts para gestionar VPN WireGuard
 Ubicados en el directorio `vpn-clients_admin`, estos scripts facilitan la creación y administración de clientes VPN en un servidor WireGuard Linux. Son las herramientas que uso en mi entorno autoalojado para gestionar rápidamente el acceso de clientes a la red interna.
 
 Próximamente, compartiré detalles sobre el proyecto **SyncBetter** y su configuración.
-
----
 
 ## Scripts Homeserver
 Colección de scripts que uso para administrar mi servidor de manera eficiente.
@@ -52,10 +48,7 @@ Scripts que garantizan un apagado o reinicio seguro del servidor:
 - Se verifica que no hayan tareas programadas en ejecución (especialmente en Nextcloud)
 - Se ejecuta un apagado limpio para evitar pérdida de datos
 
----
 
 ## Contribuciones
 Este repositorio contiene herramientas personalizadas para mi entorno, pero cualquier sugerencia o mejora es bienvenida.
-
----
 
